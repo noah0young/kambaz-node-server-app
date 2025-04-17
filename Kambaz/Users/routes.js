@@ -40,7 +40,7 @@ export default function UserRoutes(app) {
     if (currentUser && currentUser._id === userId) {
       req.session["currentUser"] = { ...currentUser, ...userUpdates };
     }
-    res.json(currentUser);
+    res.json(req.session["currentUser"]);
   };
   const signup = async (req, res) => {
     const user = await dao.findUserByUsername(req.body.username);
@@ -112,10 +112,10 @@ export default function UserRoutes(app) {
     res.send(status);
   };
 
-  const createCourse = (req, res) => {
+  const createCourse = async (req, res) => {
     const currentUser = req.session["currentUser"];
-    const newCourse = courseDao.createCourse(req.body);
-    enrollmentsDao.enrollUserInCourse(currentUser._id, newCourse._id);
+    const newCourse = await courseDao.createCourse(req.body);
+    await enrollmentsDao.enrollUserInCourse(currentUser._id, newCourse._id);
     res.json(newCourse);
   };
   app.put("/api/users/enroll/:courseID", async (req, res) => {
